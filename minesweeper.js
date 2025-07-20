@@ -90,9 +90,10 @@ class Spot{
     }
 }
 
+
+const totalMines = 50;
 let cells = [];
 let tempCells = document.querySelectorAll(".cell");
-let totalMines = 50;
 let label = document.querySelector("#label");
 
 tempCells.forEach(cell => {
@@ -132,6 +133,8 @@ for(let row = 0; row < cells.length;row++){
         let leftColumn = column == 0;
         let rightColumn = column == 19;
         let mines = 0;
+        
+        
 
         if ((!topRow && !leftColumn) && cells[row - 1][column - 1].hasMine)
             mines++;
@@ -167,15 +170,3 @@ changeLabel();
 function endGame(){
     
 }
-
-
-// cells.forEach(row => row.forEach(spot =>{
-//     if(spot.hasMine){
-//         spot.element.style.backgroundColor = "red";
-//     }else {
-//         spot.makeTan();
-//         spot.element.innerHTML = spot.adjacentMines;
-//     }
-// }))
-
-console.log(cells);
