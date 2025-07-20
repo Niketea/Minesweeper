@@ -3,11 +3,12 @@ class Spot{
         this.element = cell;
         this.row = Number(cell.getAttribute("rowIndex"));
         this.column = Number(cell.getAttribute("columnIndex"));
-        this.hasMine = cell.getAttribute("hasMine") == "true";
-        this.adjacentMines = Number(cell.getAttribute("adjacentMines"));
+        this.hasMine = false;
+        this.adjacentMines = 0;
         this.revealed = false;
     }
 
+    //Makes the spot green depending on its position to create a checkerboard
     makeGreen(){
         if((this.row + this.column) % 2 == 0){
             this.element.style.backgroundColor = "lightgreen";
@@ -16,6 +17,7 @@ class Spot{
         }
     }
 
+    //Makes the spot tan depending on its position to create a checkerboard
     makeTan(){
         if((this.row + this.column) % 2 == 0){
             this.element.style.backgroundColor = "tan";
@@ -24,10 +26,14 @@ class Spot{
         }
     }
 
+    //Reveals that a spot is a bomb
     makeBomb(){
         this.element.style.backgroundColor = "red";
     }
 
+    /* Reveals the spot showing how many mines are adjecent and reveals neighboring spots if
+       adjecent mines equals 0 
+    */
     reveal(){
         if(this.hasMine){
             this.makeBomb();
@@ -38,27 +44,29 @@ class Spot{
             this.revealed = true;
             this.element.innerHTML = "";
 
+            //Reveals neighboring spots if adjacentMines = 0
             if(this.adjacentMines == 0){
                 let topRow = this.row == 0;
                 let bottomRow = this.row == 19;
                 let leftColumn = this.column == 0;
                 let rightColumn = this.column == 19;
                 
-                if (!topRow && !leftColumn && !cells[this.row - 1][this.column - 1].revealed)
+                //Reveals neighboring spots
+                if (!topRow && !leftColumn && !cells[this.row - 1][this.column - 1].revealed) //Top-Left
                     cells[this.row - 1][this.column - 1].reveal();
-                if(!topRow && !cells[this.row-1][this.column].revealed)
+                if(!topRow && !cells[this.row-1][this.column].revealed) //Top
                     cells[this.row-1][this.column].reveal();
-                if(!topRow && !rightColumn && !cells[this.row - 1][this.column + 1].revealed)
+                if(!topRow && !rightColumn && !cells[this.row - 1][this.column + 1].revealed) // Top-Right
                     cells[this.row - 1][this.column + 1].reveal();
-                if(!rightColumn && !cells[this.row][this.column+1].revealed)
+                if(!rightColumn && !cells[this.row][this.column+1].revealed) // Right
                     cells[this.row][this.column+1].reveal();
-                if(!bottomRow && !rightColumn && !cells[this.row + 1][this.column+1].revealed)
+                if(!bottomRow && !rightColumn && !cells[this.row + 1][this.column+1].revealed) //Bottom-Right
                     cells[this.row + 1][this.column+1].reveal();
-                if(!bottomRow && !cells[this.row+1][this.column].revealed)
+                if(!bottomRow && !cells[this.row+1][this.column].revealed) //Bottom
                     cells[this.row+1][this.column].reveal();
-                if(!bottomRow && !leftColumn && !cells[this.row + 1][this.column - 1].revealed)
+                if(!bottomRow && !leftColumn && !cells[this.row + 1][this.column - 1].revealed) // Bottom-Left
                     cells[this.row + 1][this.column - 1].reveal();
-                if(!leftColumn && !cells[this.row][this.column-1].revealed)
+                if(!leftColumn && !cells[this.row][this.column-1].revealed) // Left
                     cells[this.row][this.column-1].reveal();
 
             }else{
@@ -66,7 +74,8 @@ class Spot{
             }
         }
     }
-
+    
+    //Marks the spot with an "X" after a middleclick
     mark(){
         if(!this.revealed){
             if(this.element.innerHTML == "X")
@@ -77,7 +86,7 @@ class Spot{
                 this.element.innerHTML = "X";
                 totalMines--; 
             }
-            changeLabel();
+            displayNumberOfMines();
         }
     }
 
@@ -92,12 +101,13 @@ class Spot{
 
 
 const totalMines = 50;
-
+const tempCells = document.querySelectorAll(".cell");
+const label = document.querySelector("#label");
 
 let cells = [];
-let tempCells = document.querySelectorAll(".cell");
-let label = document.querySelector("#label");
 
+
+// Creates a 2D Array with Spot Objects representing the grid
 tempCells.forEach(cell => {
     if(cell.getAttribute("columnIndex") == 0){
         cells.push([]);
@@ -105,6 +115,7 @@ tempCells.forEach(cell => {
     cells[cell.getAttribute("rowIndex")].push(new Spot(cell));
 })
 
+//Makes the board unrevealed
 cells.forEach(row => row.forEach(spot => spot.makeGreen()));
 
 function randomNumber(min,max)
@@ -112,10 +123,11 @@ function randomNumber(min,max)
     return Math.floor(Math.random() * (max-min+1)) + min;
 }
 
-function changeLabel(){
+function displayNumberOfMines(){
     label.innerHTML = "Mines: " + totalMines;
 }
 
+//Initializes spots with mines
 for(let i = 0; i < totalMines; i++)
 {
     let newMine = false;
@@ -127,6 +139,8 @@ for(let i = 0; i < totalMines; i++)
         }
     }while(!newMine)
 }
+
+//Sets the value of adjecentMines for all Spots
 for(let row = 0; row < cells.length;row++){
     for(let column = 0; column < cells[row].length;column++)
     {
@@ -138,21 +152,21 @@ for(let row = 0; row < cells.length;row++){
         
         
 
-        if ((!topRow && !leftColumn) && cells[row - 1][column - 1].hasMine)
+        if ((!topRow && !leftColumn) && cells[row - 1][column - 1].hasMine) //Top-Left
             mines++;
-        if(!topRow && cells[row-1][column].hasMine)
+        if(!topRow && cells[row-1][column].hasMine) //Top
             mines++;
-        if((!topRow && !rightColumn) && cells[row - 1][column + 1].hasMine)
+        if((!topRow && !rightColumn) && cells[row - 1][column + 1].hasMine) //Top-Right
             mines++;
-        if(!rightColumn && cells[row][column+1].hasMine)
+        if(!rightColumn && cells[row][column+1].hasMine) // Right
             mines++;
-        if((!bottomRow && !rightColumn) && cells[row + 1][column+1].hasMine)
+        if((!bottomRow && !rightColumn) && cells[row + 1][column+1].hasMine) // Bottom-Right
             mines++;
-        if(!bottomRow && cells[row+1][column].hasMine)
+        if(!bottomRow && cells[row+1][column].hasMine) //Bottom
             mines++;
-        if((!bottomRow && !leftColumn) && cells[row + 1][column - 1].hasMine)
+        if((!bottomRow && !leftColumn) && cells[row + 1][column - 1].hasMine) //Bottom-Left
             mines++;
-        if(!leftColumn && cells[row][column-1].hasMine)
+        if(!leftColumn && cells[row][column-1].hasMine) // Left
             mines++;
 
         cells[row][column].setAdjacentMines(mines);
@@ -167,7 +181,7 @@ cells.forEach(row => row.forEach(spot => {
         }
     });
 }))
-changeLabel();
+displayNumberOfMines();
 
 function endGame(){
     
