@@ -92,6 +92,8 @@ class Spot{
 
 
 const totalMines = 50;
+
+
 let cells = [];
 let tempCells = document.querySelectorAll(".cell");
 let label = document.querySelector("#label");
